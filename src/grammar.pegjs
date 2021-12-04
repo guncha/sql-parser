@@ -480,13 +480,26 @@ expression_unary_collate
   }
   / expression_recur
 
+expression_pg_cast "PSQL-style cast"
+  = e:( expression_unary_collate ) o "::" o d:( type_definition )
+  {
+    return {
+      'type': 'expression',
+      'format': 'unary',
+      'variant': 'cast',
+      'expression': e,
+      'as': d
+    };
+  }
+  / expression_unary_collate
+
 /**
  * @note
  *   Bind to expression_root before expression to bind the unary
  *   operator to the closest expression first.
  */
 expression_unary
-  = op:( expression_unary_op ) o e:( expression_unary_collate / expression ) {
+  = op:( expression_unary_op ) o e:( expression_pg_cast / expression ) {
     return {
       'type': 'expression',
       'format': 'unary',
@@ -495,7 +508,7 @@ expression_unary
       'operator': keyNode(op)
     };
   }
-  / expression_unary_collate
+  / expression_pg_cast
 expression_unary_op
   = sym_tilde
   / sym_minus
