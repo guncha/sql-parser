@@ -2,9 +2,10 @@
   "name": "sqlite-parser",
   "description": "JavaScript implentation of SQLite 3 query parser",
   "author": "Code School (http://codeschool.com)",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "contributors": [
-    "Nick Wronski <nick@javascript.com>"
+    "Nick Wronski <nick@javascript.com>",
+    "Rafał Rzepecki <divided.mind@gmail.com>"
   ],
   "keywords": [
     "sql",
@@ -39,9 +40,9 @@
     "CHANGELOG.md",
     "README.md"
   ],
-  "repository": "git@github.com:codeschool/sqlite-parser.git",
+  "repository": "git@github.com:applandinc/sqlite-parser.git",
   "bugs": {
-    "url": "https://github.com/codeschool/sqlite-parser/issues"
+    "url": "https://github.com/applandinc/sqlite-parser/issues"
   },
   "devDependencies": {
     "babel-core": "^6.17.0",

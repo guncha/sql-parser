@@ -1,7 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [Unreleased][unreleased]
+## [v1.1.0] - 2021-12-04
+
+### Added
+- Support for PostgreSQL custom operators.
 
 ## [v1.0.1] - 2017-06-15
 ### Fixed

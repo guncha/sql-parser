@@ -7,6 +7,9 @@
 
 This JavaScript library parses SQLite queries to generate
 _abstract syntax tree_ (AST) representations of the parsed statements.
+It also parses some non-SQLite constructs, like PostgreSQL custom operators, although
+non-SQLite parsing can't be 100% accurate due to slight syntax differences
+(eg. different operator precedences) so corner cases might be parsed wrong.
 
 Try out the
 [interactive demo](http://codeschool.github.io/sqlite-parser/demo/)

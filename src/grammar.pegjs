@@ -540,6 +540,7 @@ expression_shift_op
   = binary_left
   / binary_right
   / binary_and
+  / binary_custom
   / $(binary_or !binary_or)
 
 expression_compare
@@ -2630,6 +2631,15 @@ binary_notequal_a "Not Equal"
 binary_notequal_b "Not Equal"
   =  sym_lt sym_gt
 
+binary_custom "PostgreSQL custom binary operarator"
+  = s:(sym_op+) & {
+    const sym = s.join('');
+    if (sym.includes('--') || sym.includes('/*')) return false;
+    const last = s[s.length-1];
+    if (!(last === '-' || last === '+')) return true;
+    return sym.match(/[~@#%^&|`?]/);
+  } { return s.join(''); }
+
 binary_lang
   = binary_lang_isnt
 
@@ -2966,6 +2976,8 @@ sym_fslash "Forward Slash"
   = s:( "/" ) o { return s; }
 sym_bslash "Backslash"
   = s:( "\\" ) o { return s; }
+sym_op "Operator characters"
+  = s:( [-+*/<>=~!@#%^&|`] ) o { return s; }
 
 /* Keywords */
 
