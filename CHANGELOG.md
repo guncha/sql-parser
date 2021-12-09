@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/applandinc/sqlite-parser/compare/v1.1.0...v1.1.1) (2021-12-09)
+
+
+### Bug Fixes
+
+* Rename to @appland/sql-parser ([06a76fd](https://github.com/applandinc/sqlite-parser/commit/06a76fd5c870badf48efb96c90ab48b5ab5a3dd8))
+
 # [1.1.0](https://github.com/applandinc/sqlite-parser/compare/v1.0.1...v1.1.0) (2021-12-09)
 
 
