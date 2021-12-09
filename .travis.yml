@@ -10,9 +10,8 @@ script:
 - npm run test
 
 deploy:
+  skip_cleanup: true
   on:
     branch: master
   provider: script
-  script:
-  - npm run build
-  - npx semantic-release
+  script: ci/deploy.sh

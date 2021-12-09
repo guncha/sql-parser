@@ -1,11 +1,6 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [v1.1.0] - 2021-12-04
-
-### Added
-- Support for PostgreSQL custom operators and PostgreSQL-style casts.
-
 ## [v1.0.1] - 2017-06-15
 ### Fixed
 - The `AND` / `OR` operator composition order now matches the official SQLite 3 implementation so that `AND` has a higher precedence than `OR`
