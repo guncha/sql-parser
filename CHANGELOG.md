@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/applandinc/sqlite-parser/compare/v1.0.1...v1.1.0) (2021-12-09)
+
+
+### Features
+
+* Add support for custom PostgreSQL operators ([351cee3](https://github.com/applandinc/sqlite-parser/commit/351cee333f6edebb78567a1ec9677e76d6a7a4c7))
+* Add support for PostgreSQL-style casts ([4eabd51](https://github.com/applandinc/sqlite-parser/commit/4eabd518a456a5e74b3cde48476ba5ef8bce5bce))
+
 # Change Log
 All notable changes to this project will be documented in this file.
 
