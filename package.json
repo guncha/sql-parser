@@ -1,6 +1,6 @@
 {
-  "name": "sqlite-parser",
-  "description": "JavaScript implentation of SQLite 3 query parser",
+  "name": "@appland/sqlite-parser",
+  "description": "JavaScript implementation of SQLite 3 query parser",
   "author": "Code School (http://codeschool.com)",
   "version": "1.1.0",
   "contributors": [
@@ -45,6 +45,8 @@
     "url": "https://github.com/applandinc/sqlite-parser/issues"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
     "babel-core": "^6.17.0",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-es2015": "^6.16.0",
@@ -70,7 +72,7 @@
     "lodash": "^4.16.2",
     "mocha": "^3.1.0",
     "pegjs": "git+https://github.com/nwronski/pegjs.git#master",
-    "prettyjson": "^1.1.3"
-  },
-  "dependencies": {}
+    "prettyjson": "^1.1.3",
+    "semantic-release": "^18.0.1"
+  }
 }
