@@ -1563,12 +1563,12 @@ stmt_fallback_types "Fallback Type"
 
 /** {@link https://www.sqlite.org/lang_insert.html} */
 stmt_insert "INSERT Statement"
-  = k:( insert_keyword ) o t:( insert_target )
+  = k:( insert_keyword ) o t:( insert_target ) o c:( opt_on_conflict )?
   {
     return Object.assign({
       'type': 'statement',
       'variant': 'insert'
-    }, k, t);
+    }, k, t, c);
   }
 
 insert_keyword
@@ -1622,6 +1622,40 @@ insert_results "VALUES Clause"
     return {
       'result': r
     };
+  }
+
+opt_on_conflict "PostgreSQL INSERT ON CONFLICT clause"
+  = primary_conflict_start o i:( opt_conf_expr )? o "DO"i o a:( opt_on_conflict_action )
+  {
+    return {
+      conflict: Object.assign(a, i)
+    };
+  }
+
+opt_on_conflict_action "PostgreSQL ON CONFLICT action"
+  = s:( update_start ) o t:( update_set ) o w:( stmt_core_where )?
+  {
+    return Object.assign({
+      action: s
+    }, t, w);
+  }
+  / s:( "NOTHING"i )
+  {
+    return {
+      action: keyNode(s)
+    };
+  }
+
+opt_conf_expr "PostgreSQL ON CONFLICT expression"
+  = i:( primary_columns_index ) o w:( stmt_core_where )?
+  {
+    return { on: Object.assign({columns: i}, w) };
+  }
+  / ON o CONSTRAINT o c:( id_name )
+  {
+    return { on: {
+      constraint: c
+    }};
   }
 
 loop_columns "Column List"
@@ -1736,12 +1770,23 @@ update_columns_tail
   { return c; }
 
 update_column "Column Assignment"
-  = f:( id_column ) o sym_equal e:( expression ) o
+  = f:( id_column ) o sym_equal e:( update_expression ) o
   {
     return {
       'type': 'assignment',
       'target': f,
       'value': e
+    };
+  }
+
+update_expression "UPDATE value expression"
+  = expression
+  / DEFAULT
+  {
+    return {
+      type: 'literal',
+      variant: 'default',
+      value: 'default'
     };
   }
 

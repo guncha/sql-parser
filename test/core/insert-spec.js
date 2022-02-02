@@ -14,4 +14,7 @@ describe('insert', function() {
     tree.equals(this, done);
   });
 
+  it('insert on conflict', function (done) {
+    tree.equals(this, done);
+  });
 });
