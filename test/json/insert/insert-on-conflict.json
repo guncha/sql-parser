@@ -44,8 +44,8 @@
             },
             "value": {
               "type": "literal",
-              "variant": "null",
-              "value": "null"
+              "variant": "default",
+              "value": "default"
             }
           }
         ],

@@ -1770,12 +1770,23 @@ update_columns_tail
   { return c; }
 
 update_column "Column Assignment"
-  = f:( id_column ) o sym_equal e:( expression ) o
+  = f:( id_column ) o sym_equal e:( update_expression ) o
   {
     return {
       'type': 'assignment',
       'target': f,
       'value': e
+    };
+  }
+
+update_expression "UPDATE value expression"
+  = expression
+  / DEFAULT
+  {
+    return {
+      type: 'literal',
+      variant: 'default',
+      value: 'default'
     };
   }
 
