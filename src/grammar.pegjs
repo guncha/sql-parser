@@ -1579,18 +1579,26 @@ stmt_core_order_list_loop
   { return i; }
 
 stmt_core_order_list_item "Ordering Expression"
-  = e:( expression ) o d:( primary_column_dir )?
+  = e:( expression ) o d:( primary_column_dir )? o n:( nulls_order )?
   {
     // Only convert this into an ordering expression if it contains
     // more than just the expression.
-    if (isOkay(d)) {
+    if (isOkay(d) || isOkay(n)) {
       return Object.assign({
         'type': 'expression',
         'variant': 'order',
         'expression': e
-      }, d);
+      }, d, n);
     }
     return e;
+  }
+
+nulls_order
+  = NULLS o d:( FIRST / LAST )
+  {
+    return {
+      nulls: keyNode(d)
+    };
   }
 
 select_star "Star"
@@ -3177,6 +3185,8 @@ EXPLAIN
   = "EXPLAIN"i !name_char
 FAIL
   = "FAIL"i !name_char
+FIRST
+  = "FIRST"i !name_char
 FOR
   = "FOR"i !name_char
 FOREIGN
@@ -3223,6 +3233,8 @@ JOIN
   = "JOIN"i !name_char
 KEY
   = "KEY"i !name_char
+LAST
+  = "LAST"i !name_char
 LEFT
   = "LEFT"i !name_char
 LIKE
@@ -3241,6 +3253,8 @@ NOTNULL
   = "NOTNULL"i !name_char
 NULL
   = "NULL"i !name_char
+NULLS
+  = "NULLS"i !name_char
 OF
   = "OF"i !name_char
 OFFSET
@@ -3353,11 +3367,11 @@ reserved_word_list
     CURRENT_TIME / CURRENT_TIMESTAMP / DATABASE / DEFAULT /
     DEFERRABLE / DEFERRED / DELETE / DESC / DETACH / DISTINCT /
     DROP / EACH / ELSE / END / ESCAPE / EXCEPT / EXCLUSIVE / EXISTS /
-    EXPLAIN / FAIL / FOR / FOREIGN / FROM / FULL / GLOB / GROUP /
+    EXPLAIN / FAIL / FIRST / FOR / FOREIGN / FROM / FULL / GLOB / GROUP /
     HAVING / IF / IGNORE / IMMEDIATE / IN / INDEX / INDEXED /
     INITIALLY / INNER / INSERT / INSTEAD / INTERSECT / INTO / IS /
-    ISNULL / JOIN / KEY / LEFT / LIKE / LIMIT / MATCH / NATURAL /
-    NO / NOT / NOTNULL / NULL / OF / OFFSET / ON / OR / ORDER /
+    ISNULL / JOIN / KEY / LAST / LEFT / LIKE / LIMIT / MATCH / NATURAL /
+    NO / NOT / NOTNULL / NULL / NULLS / OF / OFFSET / ON / OR / ORDER /
     OUTER / OVER / PARTITION / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / RECURSIVE /
     REFERENCES / REGEXP / REINDEX / RELEASE / RENAME / REPLACE /
     RESTRICT / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
