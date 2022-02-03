@@ -741,12 +741,12 @@ expression_list_rest
  *  Allow functions to have datatype names: date(arg), time(now), etc...
  */
 function_call "Function Call"
-  = n:( id_function ) o sym_popen a:( function_call_args )? o sym_pclose
+  = n:( id_function ) o sym_popen a:( function_call_args )? o sym_pclose o o:( over_clause )?
   {
     return Object.assign({
       'type': 'function',
       'name': n
-    }, a);
+    }, a, o);
   }
 
 function_call_args "Function Call Arguments"
@@ -772,6 +772,48 @@ args_list_distinct
   {
     return {
       'filter': keyNode(s)
+    };
+  }
+
+over_clause "OVER clause"
+  = OVER o w:( window_specification / window_name )
+  {
+    return {
+      over: w
+    };
+  }
+
+window_name "Window name"
+  = n:( id_name )
+  {
+    return {
+      'type': 'identifier',
+      'variant': 'window',
+      'name': n
+    };
+  }
+
+window_specification "Window specification"
+  = sym_popen o w:( source_window_name )? o p:( partition_clause )? o o:( stmt_core_order )? o sym_pclose
+  {
+    return Object.assign({
+      type: 'window'
+    }, w, p, o);
+  }
+
+source_window_name
+  = n:( window_name ) !(o BY)  // make sure it doesn't consume PARTITION BY
+  {
+    return {
+      source: n
+    };
+  }
+
+partition_clause "window partition clause"
+  = PARTITION o BY o e:( expression_list )
+  {
+    return {
+      partition: e
     };
   }
 
@@ -3211,6 +3253,10 @@ ORDER
   = "ORDER"i !name_char
 OUTER
   = "OUTER"i !name_char
+OVER
+  = "OVER"i !name_char
+PARTITION
+  = "PARTITION"i !name_char
 PLAN
   = "PLAN"i !name_char
 PRAGMA
@@ -3312,7 +3358,7 @@ reserved_word_list
     INITIALLY / INNER / INSERT / INSTEAD / INTERSECT / INTO / IS /
     ISNULL / JOIN / KEY / LEFT / LIKE / LIMIT / MATCH / NATURAL /
     NO / NOT / NOTNULL / NULL / OF / OFFSET / ON / OR / ORDER /
-    OUTER / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / RECURSIVE /
+    OUTER / OVER / PARTITION / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / RECURSIVE /
     REFERENCES / REGEXP / REINDEX / RELEASE / RENAME / REPLACE /
     RESTRICT / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
     SET / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
