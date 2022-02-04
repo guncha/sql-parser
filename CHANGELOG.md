@@ -1,3 +1,13 @@
+# [1.2.0](https://github.com/applandinc/sqlite-parser/compare/v1.1.1...v1.2.0) (2022-02-04)
+
+
+### Features
+
+* Handle RETURNING clause ([3f7e360](https://github.com/applandinc/sqlite-parser/commit/3f7e360b28a435c8e14fbdb2c1632601d48fb1df))
+* Parse ORDER BY ... NULLS {FIRST,LAST} expressions ([e2e8708](https://github.com/applandinc/sqlite-parser/commit/e2e87080fdaf98f3e1edf9a5b409e9cd18bb2010))
+* Support parsing window functions ([cd9fd6c](https://github.com/applandinc/sqlite-parser/commit/cd9fd6c063dddd399f6d6e81f7b12a765a9071ee))
+* Support WINDOW clauses in SELECT statements ([2f8645c](https://github.com/applandinc/sqlite-parser/commit/2f8645c3d2b471bbff04ed10d45fac32bfa2f6d6))
+
 ## [1.1.1](https://github.com/applandinc/sqlite-parser/compare/v1.1.0...v1.1.1) (2021-12-09)
 
 
