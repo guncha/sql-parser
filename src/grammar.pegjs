@@ -1219,9 +1219,33 @@ stmt_crud_types
 
 /** {@link https://www.sqlite.org/lang_select.html} */
 stmt_select "SELECT Statement"
-  = s:( select_loop ) o o:( stmt_core_order )? o l:( stmt_core_limit )?
+  = s:( select_loop ) o o:( stmt_core_order )? o l:( stmt_core_limit )? o w:( window_clause )?
   {
-    return Object.assign(s, o, l);
+    return Object.assign(s, o, l, w);
+  }
+
+window_clause "WINDOW clause"
+  = WINDOW o l:( window_definition_list ) o
+  {
+    return {
+      window: l
+    };
+  }
+
+window_definition_list
+  = f:( window_definition ) o r:( window_definition_loop )*
+  { return flattenAll([ f, r ]); }
+
+window_definition_loop
+  = sym_comma n:( window_definition ) o
+  { return n; }
+
+window_definition
+  = n:( window_name ) o AS o d:( window_specification )
+  {
+    return Object.assign(d, {
+      target: n
+    });
   }
 
 stmt_core_order "ORDER BY Clause"
@@ -3345,6 +3369,8 @@ WHEN
   = "WHEN"i !name_char
 WHERE
   = "WHERE"i !name_char
+WINDOW
+  = "WINDOW"i !name_char
 WITH
   = "WITH"i !name_char
 WITHOUT
@@ -3377,7 +3403,7 @@ reserved_word_list
     RESTRICT / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
     SET / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
     TRIGGER / UNION / UNIQUE / UPDATE / USING / VACUUM / VALUES /
-    VIEW / VIRTUAL / WHEN / WHERE / WITH / WITHOUT
+    VIEW / VIRTUAL / WHEN / WHERE / WINDOW / WITH / WITHOUT
 
 /**
  * @note
