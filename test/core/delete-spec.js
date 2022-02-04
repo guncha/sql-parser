@@ -10,4 +10,8 @@ describe('delete', function() {
     tree.equals(this, done);
   });
 
+  it('delete returning', function (done) {
+    tree.equals(this, done);
+  });
+
 });

@@ -6,6 +6,10 @@ describe('functions', function() {
     tree.equals(this, done);
   });
 
+  it('window function', function (done) {
+    tree.equals(this, done);
+  });
+
   it('function mixed args', function(done) {
     tree.equals(this, done);
   });

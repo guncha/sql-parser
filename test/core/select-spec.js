@@ -26,4 +26,8 @@ describe('select', function() {
     tree.equals(this, done);
   });
 
+  it('select order nulls', function (done) {
+    tree.equals(this, done);
+  });
+
 });

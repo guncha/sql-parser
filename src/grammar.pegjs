@@ -741,12 +741,12 @@ expression_list_rest
  *  Allow functions to have datatype names: date(arg), time(now), etc...
  */
 function_call "Function Call"
-  = n:( id_function ) o sym_popen a:( function_call_args )? o sym_pclose
+  = n:( id_function ) o sym_popen a:( function_call_args )? o sym_pclose o o:( over_clause )?
   {
     return Object.assign({
       'type': 'function',
       'name': n
-    }, a);
+    }, a, o);
   }
 
 function_call_args "Function Call Arguments"
@@ -772,6 +772,48 @@ args_list_distinct
   {
     return {
       'filter': keyNode(s)
+    };
+  }
+
+over_clause "OVER clause"
+  = OVER o w:( window_specification / window_name )
+  {
+    return {
+      over: w
+    };
+  }
+
+window_name "Window name"
+  = n:( id_name )
+  {
+    return {
+      'type': 'identifier',
+      'variant': 'window',
+      'name': n
+    };
+  }
+
+window_specification "Window specification"
+  = sym_popen o w:( source_window_name )? o p:( partition_clause )? o o:( stmt_core_order )? o sym_pclose
+  {
+    return Object.assign({
+      type: 'window'
+    }, w, p, o);
+  }
+
+source_window_name
+  = n:( window_name ) !(o BY)  // make sure it doesn't consume PARTITION BY
+  {
+    return {
+      source: n
+    };
+  }
+
+partition_clause "window partition clause"
+  = PARTITION o BY o e:( expression_list )
+  {
+    return {
+      partition: e
     };
   }
 
@@ -1177,9 +1219,33 @@ stmt_crud_types
 
 /** {@link https://www.sqlite.org/lang_select.html} */
 stmt_select "SELECT Statement"
-  = s:( select_loop ) o o:( stmt_core_order )? o l:( stmt_core_limit )?
+  = s:( select_loop ) o o:( stmt_core_order )? o l:( stmt_core_limit )? o w:( window_clause )?
   {
-    return Object.assign(s, o, l);
+    return Object.assign(s, o, l, w);
+  }
+
+window_clause "WINDOW clause"
+  = WINDOW o l:( window_definition_list ) o
+  {
+    return {
+      window: l
+    };
+  }
+
+window_definition_list
+  = f:( window_definition ) o r:( window_definition_loop )*
+  { return flattenAll([ f, r ]); }
+
+window_definition_loop
+  = sym_comma n:( window_definition ) o
+  { return n; }
+
+window_definition
+  = n:( window_name ) o AS o d:( window_specification )
+  {
+    return Object.assign(d, {
+      target: n
+    });
   }
 
 stmt_core_order "ORDER BY Clause"
@@ -1537,18 +1603,26 @@ stmt_core_order_list_loop
   { return i; }
 
 stmt_core_order_list_item "Ordering Expression"
-  = e:( expression ) o d:( primary_column_dir )?
+  = e:( expression ) o d:( primary_column_dir )? o n:( nulls_order )?
   {
     // Only convert this into an ordering expression if it contains
     // more than just the expression.
-    if (isOkay(d)) {
+    if (isOkay(d) || isOkay(n)) {
       return Object.assign({
         'type': 'expression',
         'variant': 'order',
         'expression': e
-      }, d);
+      }, d, n);
     }
     return e;
+  }
+
+nulls_order
+  = NULLS o d:( FIRST / LAST )
+  {
+    return {
+      nulls: keyNode(d)
+    };
   }
 
 select_star "Star"
@@ -1563,12 +1637,20 @@ stmt_fallback_types "Fallback Type"
 
 /** {@link https://www.sqlite.org/lang_insert.html} */
 stmt_insert "INSERT Statement"
-  = k:( insert_keyword ) o t:( insert_target ) o c:( opt_on_conflict )?
+  = k:( insert_keyword ) o t:( insert_target ) o c:( opt_on_conflict )? o r:( returning_clause )?
   {
     return Object.assign({
       'type': 'statement',
       'variant': 'insert'
-    }, k, t, c);
+    }, k, t, c, r);
+  }
+
+returning_clause "RETURNING clause"
+  = RETURNING o t:( select_target )
+  {
+    return {
+      returning: t
+    };
   }
 
 insert_keyword
@@ -1732,13 +1814,13 @@ compound_union_all
 stmt_update "UPDATE Statement"
   = s:( update_start ) f:( update_fallback )?
     t:( table_qualified ) o u:( update_set ) w:( stmt_core_where )?
-    o:( stmt_core_order )? o l:( stmt_core_limit )?
+    o:( stmt_core_order )? o l:( stmt_core_limit )? o r:( returning_clause )?
   {
     return Object.assign({
       'type': 'statement',
       'variant': s,
       'into': t
-    }, f, u, w, o, l);
+    }, f, u, w, o, l, r);
   }
 
 update_start "UPDATE Keyword"
@@ -1797,13 +1879,13 @@ update_expression "UPDATE value expression"
  */
 stmt_delete "DELETE Statement"
   = s:( delete_start ) t:( table_qualified ) o w:( stmt_core_where )?
-    o:( stmt_core_order )? l:( stmt_core_limit )?
+    o:( stmt_core_order )? l:( stmt_core_limit )? o r:( returning_clause )?
   {
     return Object.assign({
       'type': 'statement',
       'variant': s,
       'from': t
-    }, w, o, l);
+    }, w, o, l, r);
   }
 
 delete_start "DELETE Keyword"
@@ -3135,6 +3217,8 @@ EXPLAIN
   = "EXPLAIN"i !name_char
 FAIL
   = "FAIL"i !name_char
+FIRST
+  = "FIRST"i !name_char
 FOR
   = "FOR"i !name_char
 FOREIGN
@@ -3181,6 +3265,8 @@ JOIN
   = "JOIN"i !name_char
 KEY
   = "KEY"i !name_char
+LAST
+  = "LAST"i !name_char
 LEFT
   = "LEFT"i !name_char
 LIKE
@@ -3199,6 +3285,8 @@ NOTNULL
   = "NOTNULL"i !name_char
 NULL
   = "NULL"i !name_char
+NULLS
+  = "NULLS"i !name_char
 OF
   = "OF"i !name_char
 OFFSET
@@ -3211,6 +3299,10 @@ ORDER
   = "ORDER"i !name_char
 OUTER
   = "OUTER"i !name_char
+OVER
+  = "OVER"i !name_char
+PARTITION
+  = "PARTITION"i !name_char
 PLAN
   = "PLAN"i !name_char
 PRAGMA
@@ -3237,6 +3329,8 @@ REPLACE
   = "REPLACE"i !name_char
 RESTRICT
   = "RESTRICT"i !name_char
+RETURNING
+  = "RETURNING"i !name_char
 RIGHT
   = "RIGHT"i !name_char
 ROLLBACK
@@ -3285,6 +3379,8 @@ WHEN
   = "WHEN"i !name_char
 WHERE
   = "WHERE"i !name_char
+WINDOW
+  = "WINDOW"i !name_char
 WITH
   = "WITH"i !name_char
 WITHOUT
@@ -3307,17 +3403,17 @@ reserved_word_list
     CURRENT_TIME / CURRENT_TIMESTAMP / DATABASE / DEFAULT /
     DEFERRABLE / DEFERRED / DELETE / DESC / DETACH / DISTINCT /
     DROP / EACH / ELSE / END / ESCAPE / EXCEPT / EXCLUSIVE / EXISTS /
-    EXPLAIN / FAIL / FOR / FOREIGN / FROM / FULL / GLOB / GROUP /
+    EXPLAIN / FAIL / FIRST / FOR / FOREIGN / FROM / FULL / GLOB / GROUP /
     HAVING / IF / IGNORE / IMMEDIATE / IN / INDEX / INDEXED /
     INITIALLY / INNER / INSERT / INSTEAD / INTERSECT / INTO / IS /
-    ISNULL / JOIN / KEY / LEFT / LIKE / LIMIT / MATCH / NATURAL /
-    NO / NOT / NOTNULL / NULL / OF / OFFSET / ON / OR / ORDER /
-    OUTER / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / RECURSIVE /
+    ISNULL / JOIN / KEY / LAST / LEFT / LIKE / LIMIT / MATCH / NATURAL /
+    NO / NOT / NOTNULL / NULL / NULLS / OF / OFFSET / ON / OR / ORDER /
+    OUTER / OVER / PARTITION / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / RECURSIVE /
     REFERENCES / REGEXP / REINDEX / RELEASE / RENAME / REPLACE /
-    RESTRICT / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
+    RESTRICT / RETURNING / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
     SET / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
     TRIGGER / UNION / UNIQUE / UPDATE / USING / VACUUM / VALUES /
-    VIEW / VIRTUAL / WHEN / WHERE / WITH / WITHOUT
+    VIEW / VIRTUAL / WHEN / WHERE / WINDOW / WITH / WITHOUT
 
 /**
  * @note

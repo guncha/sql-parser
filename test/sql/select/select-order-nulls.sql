@@ -1,0 +1,2 @@
+SELECT * FROM widgets ORDER BY weight NULLS LAST;
+SELECT * FROM widgets ORDER BY weight NULLS FIRST;
