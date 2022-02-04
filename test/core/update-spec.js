@@ -10,4 +10,7 @@ describe('update', function() {
     tree.equals(this, done);
   });
 
+  it('update returning', function (done) {
+    tree.equals(this, done);
+  });
 });

@@ -1637,12 +1637,20 @@ stmt_fallback_types "Fallback Type"
 
 /** {@link https://www.sqlite.org/lang_insert.html} */
 stmt_insert "INSERT Statement"
-  = k:( insert_keyword ) o t:( insert_target ) o c:( opt_on_conflict )?
+  = k:( insert_keyword ) o t:( insert_target ) o c:( opt_on_conflict )? o r:( returning_clause )?
   {
     return Object.assign({
       'type': 'statement',
       'variant': 'insert'
-    }, k, t, c);
+    }, k, t, c, r);
+  }
+
+returning_clause "RETURNING clause"
+  = RETURNING o t:( select_target )
+  {
+    return {
+      returning: t
+    };
   }
 
 insert_keyword
@@ -1806,13 +1814,13 @@ compound_union_all
 stmt_update "UPDATE Statement"
   = s:( update_start ) f:( update_fallback )?
     t:( table_qualified ) o u:( update_set ) w:( stmt_core_where )?
-    o:( stmt_core_order )? o l:( stmt_core_limit )?
+    o:( stmt_core_order )? o l:( stmt_core_limit )? o r:( returning_clause )?
   {
     return Object.assign({
       'type': 'statement',
       'variant': s,
       'into': t
-    }, f, u, w, o, l);
+    }, f, u, w, o, l, r);
   }
 
 update_start "UPDATE Keyword"
@@ -1871,13 +1879,13 @@ update_expression "UPDATE value expression"
  */
 stmt_delete "DELETE Statement"
   = s:( delete_start ) t:( table_qualified ) o w:( stmt_core_where )?
-    o:( stmt_core_order )? l:( stmt_core_limit )?
+    o:( stmt_core_order )? l:( stmt_core_limit )? o r:( returning_clause )?
   {
     return Object.assign({
       'type': 'statement',
       'variant': s,
       'from': t
-    }, w, o, l);
+    }, w, o, l, r);
   }
 
 delete_start "DELETE Keyword"
@@ -3321,6 +3329,8 @@ REPLACE
   = "REPLACE"i !name_char
 RESTRICT
   = "RESTRICT"i !name_char
+RETURNING
+  = "RETURNING"i !name_char
 RIGHT
   = "RIGHT"i !name_char
 ROLLBACK
@@ -3400,7 +3410,7 @@ reserved_word_list
     NO / NOT / NOTNULL / NULL / NULLS / OF / OFFSET / ON / OR / ORDER /
     OUTER / OVER / PARTITION / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / RECURSIVE /
     REFERENCES / REGEXP / REINDEX / RELEASE / RENAME / REPLACE /
-    RESTRICT / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
+    RESTRICT / RETURNING / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
     SET / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
     TRIGGER / UNION / UNIQUE / UPDATE / USING / VACUUM / VALUES /
     VIEW / VIRTUAL / WHEN / WHERE / WINDOW / WITH / WITHOUT
