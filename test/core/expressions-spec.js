@@ -86,4 +86,7 @@ describe('expressions', function() {
     tree.equals(this, done);
   });
 
+  it('arrays', function (done) {
+    tree.equals(this, done);
+  });
 });

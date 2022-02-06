@@ -2828,12 +2828,87 @@ id_table_qualified
   { return foldStringWord([ n, d ]); }
 
 id_column "Column Identifier"
-  = q:( column_qualifiers / id_column_qualified / column_unqualified ) n:( id_name )
+  = q:( column_qualifiers / id_column_qualified / column_unqualified ) n:( id_name ) o i:( indirection )?
   {
-    return {
+    return Object.assign({
       'type': 'identifier',
       'variant': 'column',
       'name': foldStringWord([ q, n ])
+    }, i);
+  }
+
+indirection "value indirection"
+  = l:( indirection_loop )
+  {
+    return {
+      element: l
+    };
+  }
+
+indirection_loop
+  = i:( indirection_el ) o r:( indirection_el )*
+  { return flattenAll([i, r]); }
+
+indirection_el
+  = indirection_attr / indirection_slice / indirection_index
+
+indirection_attr
+  = sym_dot o n:( name )
+  {
+    return {
+      type: 'indirection',
+      variant: 'attribute',
+      attribute: n
+    };
+  }
+  / sym_dot o n:( sym_star )
+  {
+    return {
+      type: 'indirection',
+      variant: 'star',
+      attribute: n
+    };
+  }
+
+indirection_slice
+  = sym_bopen o l:( slice_lbound )? sym_colon o u:( slice_ubound )? o sym_bclose
+  {
+    return Object.assign({
+      type: 'indirection',
+      variant: 'slice'
+    }, l, u);
+  }
+  / sym_bopen o sym_colon o u:( slice_ubound )? o sym_bclose
+  {
+    return Object.assign({
+      type: 'indirection',
+      variant: 'slice'
+    }, u);
+  }
+
+indirection_index
+  = sym_bopen o e:( expression ) o sym_bclose
+  {
+    return {
+      type: 'indirection',
+      variant: 'index',
+      index: e
+    };
+  }
+
+slice_lbound
+  = e:( expression )
+  {
+    return {
+      lower: e
+    };
+  }
+
+slice_ubound
+  = e:( expression )
+  {
+    return {
+      upper: e
     };
   }
 
