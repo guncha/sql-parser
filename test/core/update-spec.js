@@ -1,16 +1,3 @@
 import * as tree from '../misc/helpers';
 
-describe('update', function() {
-
-  it('basic update', function(done) {
-    tree.equals(this, done);
-  });
-
-  it('update limit', function(done) {
-    tree.equals(this, done);
-  });
-
-  it('update returning', function (done) {
-    tree.equals(this, done);
-  });
-});
+describe('update', tree.glob);

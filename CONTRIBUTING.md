@@ -68,6 +68,9 @@ There are three options for the test helpers exposed by `tree`:
     }, this, done)
     ```
 
+Special `tree.glob` function is available which will enumerate all test cases
+in the directory and apply `tree.equals` on them.
+
 ``` javascript
 /* All the helper functions in `/test/helpers.js` are already available
  * and do not need to be explicitly imported.
@@ -80,6 +83,11 @@ describe('select', function () {
     tree.equals(this, done);
   });
 });
+
+/* Automatically generates an `it` block as above for each of
+ * test/sql/insert/*.sql files found.
+ */
+describe('insert', tree.glob);
 
 describe('parse errors', function (done) {
   /* Test SQL: test/sql/parse-errors/parse-error-1.sql
