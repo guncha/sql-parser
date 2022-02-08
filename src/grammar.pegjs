@@ -849,6 +849,7 @@ stmt_nodes
   / stmt_rollback
   / stmt_savepoint
   / stmt_release
+  / stmt_show
   / stmt_sqlite
 
 /**
@@ -1042,6 +1043,51 @@ stmt_select_full
   = w:( stmt_core_with ) s:( stmt_select ) {
     return Object.assign(s, w);
   }
+
+stmt_show
+  = SHOW o t:( show_target )
+  {
+    return {
+      type: 'statement',
+      variant: 'show',
+      target: t
+    };
+  }
+
+show_target
+  = "TIME"i o "ZONE"i
+  {
+    return {
+      type: 'identifier',
+      variant: 'variable',
+      name: 'timezone'
+    };
+  }
+  / "TRANSACTION"i o "ISOLATION"i o "LEVEL"i
+  {
+    return {
+      type: 'identifier',
+      variant: 'variable',
+      name: 'transaction_isolation'
+    };
+  }
+  / "SESSION"i o "AUTHORIZATION"i
+  {
+    return {
+      type: 'identifier',
+      variant: 'variable',
+      name: 'session_authorization'
+    };
+  }
+  / "ALL"i
+  {
+    return {
+      type: 'identifier',
+      variant: 'variable',
+      name: 'all'
+    };
+  }
+  / id_variable
 
 /**
  * @note Uncommon or SQLite-specific statement types
@@ -2988,6 +3034,16 @@ id_pragma "Pragma Identifier"
     };
   }
 
+id_variable "Variable Identifier"
+  = d:( id_table_qualified )? n:( id_name )
+  {
+    return {
+      'type': 'identifier',
+      'variant': 'variable',
+      'name': foldStringWord([ d, n ])
+    };
+  }
+
 id_cte "CTE Identifier"
   = d:( id_table_expression / id_table ) o {
     return d;
@@ -3420,6 +3476,8 @@ SELECT
   = "SELECT"i !name_char
 SET
   = "SET"i !name_char
+SHOW
+  = "SHOW"i !name_char
 TABLE
   = "TABLE"i !name_char
 TEMP
@@ -3486,7 +3544,7 @@ reserved_word_list
     OUTER / OVER / PARTITION / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / RECURSIVE /
     REFERENCES / REGEXP / REINDEX / RELEASE / RENAME / REPLACE /
     RESTRICT / RETURNING / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
-    SET / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
+    SET / SHOW / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
     TRIGGER / UNION / UNIQUE / UPDATE / USING / VACUUM / VALUES /
     VIEW / VIRTUAL / WHEN / WHERE / WINDOW / WITH / WITHOUT
 
