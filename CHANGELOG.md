@@ -1,3 +1,12 @@
+# [1.3.0](https://github.com/applandinc/sqlite-parser/compare/v1.2.0...v1.3.0) (2022-02-08)
+
+
+### Features
+
+* Parse array indices and slices ([064291a](https://github.com/applandinc/sqlite-parser/commit/064291ac3d11f34571d08e0da1e7120eba5c5335))
+* Parse PostgreSQL SHOW statements ([1ca2647](https://github.com/applandinc/sqlite-parser/commit/1ca26477b28d744bbf388a92b2a940351b7d7bb3))
+* Parse typed literals ([3019f7f](https://github.com/applandinc/sqlite-parser/commit/3019f7f40a2ae0b711558875b7971ea58218220f))
+
 # [1.2.0](https://github.com/applandinc/sqlite-parser/compare/v1.1.1...v1.2.0) (2022-02-04)
 
 
