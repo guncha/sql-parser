@@ -200,6 +200,7 @@ literal_value
   / literal_null
   / literal_date
   / literal_string
+  / literal_typed
 
 literal_null "Null Literal"
   = n:( NULL ) o
@@ -261,6 +262,18 @@ literal_blob "Blob Literal"
       'type': 'literal',
       'variant': 'blob',
       'value': b
+    };
+  }
+
+literal_typed "Typed literal (or bind parameter)"
+  = t:( type_definition ) s:( literal_string / bind_parameter )
+  {
+    return {
+      type: 'expression',
+      format: 'unary',
+      variant: 'cast',
+      expression: s,
+      as: t
     };
   }
 
