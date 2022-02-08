@@ -200,6 +200,7 @@ literal_value
   / literal_null
   / literal_date
   / literal_string
+  / literal_typed
 
 literal_null "Null Literal"
   = n:( NULL ) o
@@ -261,6 +262,18 @@ literal_blob "Blob Literal"
       'type': 'literal',
       'variant': 'blob',
       'value': b
+    };
+  }
+
+literal_typed "Typed literal (or bind parameter)"
+  = t:( type_definition ) s:( literal_string / bind_parameter )
+  {
+    return {
+      type: 'expression',
+      format: 'unary',
+      variant: 'cast',
+      expression: s,
+      as: t
     };
   }
 
@@ -849,6 +862,7 @@ stmt_nodes
   / stmt_rollback
   / stmt_savepoint
   / stmt_release
+  / stmt_show
   / stmt_sqlite
 
 /**
@@ -1042,6 +1056,51 @@ stmt_select_full
   = w:( stmt_core_with ) s:( stmt_select ) {
     return Object.assign(s, w);
   }
+
+stmt_show
+  = SHOW o t:( show_target )
+  {
+    return {
+      type: 'statement',
+      variant: 'show',
+      target: t
+    };
+  }
+
+show_target
+  = "TIME"i o "ZONE"i
+  {
+    return {
+      type: 'identifier',
+      variant: 'variable',
+      name: 'timezone'
+    };
+  }
+  / "TRANSACTION"i o "ISOLATION"i o "LEVEL"i
+  {
+    return {
+      type: 'identifier',
+      variant: 'variable',
+      name: 'transaction_isolation'
+    };
+  }
+  / "SESSION"i o "AUTHORIZATION"i
+  {
+    return {
+      type: 'identifier',
+      variant: 'variable',
+      name: 'session_authorization'
+    };
+  }
+  / "ALL"i
+  {
+    return {
+      type: 'identifier',
+      variant: 'variable',
+      name: 'all'
+    };
+  }
+  / id_variable
 
 /**
  * @note Uncommon or SQLite-specific statement types
@@ -2828,12 +2887,87 @@ id_table_qualified
   { return foldStringWord([ n, d ]); }
 
 id_column "Column Identifier"
-  = q:( column_qualifiers / id_column_qualified / column_unqualified ) n:( id_name )
+  = q:( column_qualifiers / id_column_qualified / column_unqualified ) n:( id_name ) o i:( indirection )?
   {
-    return {
+    return Object.assign({
       'type': 'identifier',
       'variant': 'column',
       'name': foldStringWord([ q, n ])
+    }, i);
+  }
+
+indirection "value indirection"
+  = l:( indirection_loop )
+  {
+    return {
+      element: l
+    };
+  }
+
+indirection_loop
+  = i:( indirection_el ) o r:( indirection_el )*
+  { return flattenAll([i, r]); }
+
+indirection_el
+  = indirection_attr / indirection_slice / indirection_index
+
+indirection_attr
+  = sym_dot o n:( name )
+  {
+    return {
+      type: 'indirection',
+      variant: 'attribute',
+      attribute: n
+    };
+  }
+  / sym_dot o n:( sym_star )
+  {
+    return {
+      type: 'indirection',
+      variant: 'star',
+      attribute: n
+    };
+  }
+
+indirection_slice
+  = sym_bopen o l:( slice_lbound )? sym_colon o u:( slice_ubound )? o sym_bclose
+  {
+    return Object.assign({
+      type: 'indirection',
+      variant: 'slice'
+    }, l, u);
+  }
+  / sym_bopen o sym_colon o u:( slice_ubound )? o sym_bclose
+  {
+    return Object.assign({
+      type: 'indirection',
+      variant: 'slice'
+    }, u);
+  }
+
+indirection_index
+  = sym_bopen o e:( expression ) o sym_bclose
+  {
+    return {
+      type: 'indirection',
+      variant: 'index',
+      index: e
+    };
+  }
+
+slice_lbound
+  = e:( expression )
+  {
+    return {
+      lower: e
+    };
+  }
+
+slice_ubound
+  = e:( expression )
+  {
+    return {
+      upper: e
     };
   }
 
@@ -2909,6 +3043,16 @@ id_pragma "Pragma Identifier"
     return {
       'type': 'identifier',
       'variant': 'pragma',
+      'name': foldStringWord([ d, n ])
+    };
+  }
+
+id_variable "Variable Identifier"
+  = d:( id_table_qualified )? n:( id_name )
+  {
+    return {
+      'type': 'identifier',
+      'variant': 'variable',
       'name': foldStringWord([ d, n ])
     };
   }
@@ -3345,6 +3489,8 @@ SELECT
   = "SELECT"i !name_char
 SET
   = "SET"i !name_char
+SHOW
+  = "SHOW"i !name_char
 TABLE
   = "TABLE"i !name_char
 TEMP
@@ -3411,7 +3557,7 @@ reserved_word_list
     OUTER / OVER / PARTITION / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / RECURSIVE /
     REFERENCES / REGEXP / REINDEX / RELEASE / RENAME / REPLACE /
     RESTRICT / RETURNING / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
-    SET / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
+    SET / SHOW / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
     TRIGGER / UNION / UNIQUE / UPDATE / USING / VACUUM / VALUES /
     VIEW / VIRTUAL / WHEN / WHERE / WINDOW / WITH / WITHOUT
 

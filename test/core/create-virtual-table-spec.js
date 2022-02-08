@@ -1,13 +1,3 @@
 import * as tree from '../misc/helpers';
 
-describe('create virtual table', function() {
-
-  it('basic create virtual table', function(done) {
-    tree.equals(this, done);
-  });
-
-  it('create virtual table alt syntax', function(done) {
-    tree.equals(this, done);
-  });
-
-});
+describe('create virtual table', tree.glob);

@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {readFile, writeFile, stat, mkdir } from 'fs';
-import _glob from 'glob';
+import glob from 'glob';
 import {all, each, promisify} from 'bluebird';
 import { basename, relative, dirname } from 'path';
 import _ from 'lodash';
@@ -10,7 +10,6 @@ import prettyjson from 'prettyjson';
 const read = promisify(readFile);
 const write = promisify(writeFile);
 const sqliteParser = promisify(parser);
-const glob = promisify(_glob);
 
 let format, broadcast,
     filePath,
@@ -179,6 +178,15 @@ mkdirSafe = function (dirPath) {
   });
 };
 
+assertGlobTree = function () {
+  const folder = _.kebabCase(this.title.trim());
+  const sqlDir = `${__dirname}/../sql/${folder}/*.sql`;
+  for (const file of glob.sync(sqlDir)) {
+    const title = _.lowerCase(file.match(/.*\/(.*)\.sql/)[1]);
+    it(title, function (done) { assertEqualsTree(this, done); });
+  }
+}
+
 export default {
   'get': getTree,
   'ok': assertOkTree,
@@ -190,5 +198,4 @@ export default {
   'write': write,
   'mkdirSafe': mkdirSafe,
   'sqliteParser': sqliteParser,
-  'glob': glob
 };

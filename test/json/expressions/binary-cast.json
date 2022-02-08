@@ -38,6 +38,48 @@
         "variant": "table",
         "name": "bees"
       }
+    },
+    {
+      "type": "statement",
+      "variant": "select",
+      "result": [
+        {
+          "type": "expression",
+          "format": "unary",
+          "variant": "cast",
+          "expression": {
+            "type": "literal",
+            "variant": "text",
+            "value": "1 day"
+          },
+          "as": {
+            "type": "datatype",
+            "variant": "interval",
+            "affinity": "integer"
+          }
+        }
+      ]
+    },
+    {
+      "type": "statement",
+      "variant": "select",
+      "result": [
+        {
+          "type": "expression",
+          "format": "unary",
+          "variant": "cast",
+          "expression": {
+            "type": "variable",
+            "format": "numbered",
+            "name": "?"
+          },
+          "as": {
+            "type": "datatype",
+            "variant": "interval",
+            "affinity": "integer"
+          }
+        }
+      ]
     }
   ]
 }
