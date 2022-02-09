@@ -665,7 +665,7 @@ expression_postfix_tail
 
 expression_like "Comparison Expression"
   = n:( expression_is_not )?
-    m:( LIKE / GLOB / REGEXP / MATCH ) o e:( expression ) o
+    m:( LIKE / ILIKE / GLOB / REGEXP / MATCH ) o e:( expression ) o
     x:( expression_escape )? {
     return Object.assign({
       'type': 'expression',
@@ -3381,6 +3381,8 @@ IF
   = "IF"i !name_char
 IGNORE
   = "IGNORE"i !name_char
+ILIKE
+  = "ILIKE"i !name_char
 IMMEDIATE
   = "IMMEDIATE"i !name_char
 IN
@@ -3550,7 +3552,7 @@ reserved_word_list
     DEFERRABLE / DEFERRED / DELETE / DESC / DETACH / DISTINCT /
     DROP / EACH / ELSE / END / ESCAPE / EXCEPT / EXCLUSIVE / EXISTS /
     EXPLAIN / FAIL / FIRST / FOR / FOREIGN / FROM / FULL / GLOB / GROUP /
-    HAVING / IF / IGNORE / IMMEDIATE / IN / INDEX / INDEXED /
+    HAVING / IF / IGNORE / ILIKE / IMMEDIATE / IN / INDEX / INDEXED /
     INITIALLY / INNER / INSERT / INSTEAD / INTERSECT / INTO / IS /
     ISNULL / JOIN / KEY / LAST / LEFT / LIKE / LIMIT / MATCH / NATURAL /
     NO / NOT / NOTNULL / NULL / NULLS / OF / OFFSET / ON / OR / ORDER /
