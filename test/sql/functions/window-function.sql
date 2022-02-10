@@ -15,3 +15,5 @@ FROM
      FROM empsalary
   ) AS ss
 WHERE pos < 3;
+
+SELECT channel_id, ROW_NUMBER() OVER (PARTITION BY channel_id ORDER BY priority DESC) AS row;
