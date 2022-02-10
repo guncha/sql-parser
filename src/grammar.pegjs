@@ -1278,9 +1278,64 @@ stmt_crud_types
 
 /** {@link https://www.sqlite.org/lang_select.html} */
 stmt_select "SELECT Statement"
-  = s:( select_loop ) o o:( stmt_core_order )? o l:( stmt_core_limit )?
+  = s:( select_loop ) o o:( stmt_core_order )? o l:( stmt_core_limit ) o f:( stmt_core_for_locking )?
   {
-    return Object.assign(s, o, l);
+    return Object.assign(s, o, l, f);
+  }
+  / s:( select_loop ) o o:( stmt_core_order )? o f:( stmt_core_for_locking )? o l:( stmt_core_limit )?
+  {
+    return Object.assign(s, o, l, f);
+  }
+
+stmt_core_for_locking "SELECT ... FOR locking clause"
+  = for_locking_items
+  / FOR o READ o ONLY o
+  { return {}; }
+
+for_locking_items
+  = i:( for_locking_item ) o r:( for_locking_loop )*
+  { return { locking: flattenAll([ i, r ]) }; }
+
+for_locking_loop
+  = i:( for_locking_item ) o
+  { return i; }
+
+for_locking_item
+  = FOR o s:( for_locking_strength ) o r:( locked_rels_list )? o n:( nowait_or_skip )?
+  {
+    return Object.assign({
+      type: 'expression',
+      variant: 'locking',
+      strength: foldStringWord(s).toLowerCase()
+    }, r, n);
+  }
+
+for_locking_strength
+  = UPDATE
+  / NO o KEY o UPDATE
+  / SHARE
+  / KEY o SHARE
+
+locked_rels_list
+  = OF o l:( id_table_list )
+  {
+    return {
+      target: l
+    };
+  }
+
+id_table_list
+  = i:( id_table ) o r:( id_table_loop )*
+  { return flattenAll([ i, r ]); }
+
+id_table_loop
+  = sym_comma o i:( id_table )
+  { return i; }
+
+nowait_or_skip
+  = p:( NOWAIT / SKIP o LOCKED )
+  {
+    return { policy: foldStringWord(p).toLowerCase() };
   }
 
 window_clause "WINDOW clause"
@@ -3419,6 +3474,8 @@ LIKE
   = "LIKE"i !name_char
 LIMIT
   = "LIMIT"i !name_char
+LOCKED
+  = "LOCKED"i !name_char
 MATCH
   = "MATCH"i !name_char
 NATURAL
@@ -3429,6 +3486,8 @@ NOT
   = "NOT"i !name_char
 NOTNULL
   = "NOTNULL"i !name_char
+NOWAIT
+  = "NOWAIT"i !name_char
 NULL
   = "NULL"i !name_char
 NULLS
@@ -3439,6 +3498,8 @@ OFFSET
   = "OFFSET"i !name_char
 ON
   = "ON"i !name_char
+ONLY
+  = "ONLY"i !name_char
 OR
   = "OR"i !name_char
 ORDER
@@ -3459,6 +3520,8 @@ QUERY
   = "QUERY"i !name_char
 RAISE
   = "RAISE"i !name_char
+READ
+  = "READ"i !name_char
 RECURSIVE
   = "RECURSIVE"i !name_char
 REFERENCES
@@ -3491,8 +3554,12 @@ SELECT
   = "SELECT"i !name_char
 SET
   = "SET"i !name_char
+SHARE
+  = "SHARE"i !name_char
 SHOW
   = "SHOW"i !name_char
+SKIP
+  = "SKIP"i !name_char
 TABLE
   = "TABLE"i !name_char
 TEMP
@@ -3554,12 +3621,12 @@ reserved_word_list
     EXPLAIN / FAIL / FIRST / FOR / FOREIGN / FROM / FULL / GLOB / GROUP /
     HAVING / IF / IGNORE / ILIKE / IMMEDIATE / IN / INDEX / INDEXED /
     INITIALLY / INNER / INSERT / INSTEAD / INTERSECT / INTO / IS /
-    ISNULL / JOIN / KEY / LAST / LEFT / LIKE / LIMIT / MATCH / NATURAL /
-    NO / NOT / NOTNULL / NULL / NULLS / OF / OFFSET / ON / OR / ORDER /
-    OUTER / OVER / PARTITION / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / RECURSIVE /
+    ISNULL / JOIN / KEY / LAST / LEFT / LIKE / LIMIT / LOCKED / MATCH / NATURAL /
+    NO / NOT / NOTNULL / NOWAIT / NULL / NULLS / OF / OFFSET / ON / ONLY / OR / ORDER /
+    OUTER / OVER / PARTITION / PLAN / PRAGMA / PRIMARY / QUERY / RAISE / READ / RECURSIVE /
     REFERENCES / REGEXP / REINDEX / RELEASE / RENAME / REPLACE /
     RESTRICT / RETURNING / RIGHT / ROLLBACK / ROW / SAVEPOINT / SELECT /
-    SET / SHOW / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
+    SET / SHARE / SHOW / SKIP / TABLE / TEMPORARY / THEN / TO / TRANSACTION /
     TRIGGER / UNION / UNIQUE / UPDATE / USING / VACUUM / VALUES /
     VIEW / VIRTUAL / WHEN / WHERE / WINDOW / WITH / WITHOUT
 
