@@ -1278,9 +1278,9 @@ stmt_crud_types
 
 /** {@link https://www.sqlite.org/lang_select.html} */
 stmt_select "SELECT Statement"
-  = s:( select_loop ) o o:( stmt_core_order )? o l:( stmt_core_limit )? o w:( window_clause )?
+  = s:( select_loop ) o o:( stmt_core_order )? o l:( stmt_core_limit )?
   {
-    return Object.assign(s, o, l, w);
+    return Object.assign(s, o, l);
   }
 
 window_clause "WINDOW clause"
@@ -1374,12 +1374,12 @@ select_parts
 
 select_parts_core
   = s:( select_core_select ) f:( select_core_from )? w:( stmt_core_where )?
-    g:( select_core_group )?
+    g:( select_core_group )? o i:( window_clause )?
   {
     return Object.assign({
       'type': 'statement',
       'variant': 'select',
-    }, s, f, w, g);
+    }, s, f, w, g, i);
   }
 
 select_core_select "SELECT Results Clause"
