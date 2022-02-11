@@ -660,8 +660,23 @@ expression_postfix
   / expression_equiv
 expression_postfix_tail
   = expression_in
+  / expression_distinct
   / expression_between
   / expression_like
+
+expression_distinct "IS DISTINCT expression"
+  = IS o n:( expression_is_not )?
+    m:( DISTINCT ) o FROM o e:( expression )
+    {
+      return {
+        type: 'expression',
+        format: 'binary',
+        variant: 'operation',
+        operation: foldStringKey([ n, m ]),
+        right: e
+      };
+    }
+
 
 expression_like "Comparison Expression"
   = n:( expression_is_not )?
