@@ -666,7 +666,7 @@ expression_postfix_tail
 
 expression_distinct "IS DISTINCT expression"
   = IS o n:( expression_is_not )?
-    m:( DISTINCT ) o FROM o e:( expression )
+    m:( DISTINCT ) o FROM o e:( expression_postfix )
     {
       return {
         type: 'expression',
@@ -680,7 +680,7 @@ expression_distinct "IS DISTINCT expression"
 
 expression_like "Comparison Expression"
   = n:( expression_is_not )?
-    m:( LIKE / ILIKE / GLOB / REGEXP / MATCH ) o e:( expression ) o
+    m:( LIKE / ILIKE / GLOB / REGEXP / MATCH ) o e:( expression_postfix ) o
     x:( expression_escape )? {
     return Object.assign({
       'type': 'expression',
@@ -691,7 +691,7 @@ expression_like "Comparison Expression"
     }, x);
   }
 expression_escape "ESCAPE Expression"
-  = s:( ESCAPE ) o e:( expression ) o
+  = s:( ESCAPE ) o e:( expression_postfix ) o
   {
     return {
       'escape': e
