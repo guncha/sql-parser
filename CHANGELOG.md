@@ -1,3 +1,19 @@
+# [1.4.0](https://github.com/applandinc/sqlite-parser/compare/v1.3.0...v1.4.0) (2022-02-12)
+
+
+### Bug Fixes
+
+* Fix precedence of DISTINCT, LIKE and similar operators ([b56ca4b](https://github.com/applandinc/sqlite-parser/commit/b56ca4b0fa8fc570445204b217d98c0b5c8cd8cd))
+* Move window clause down to select_parts_core production ([a1dd21c](https://github.com/applandinc/sqlite-parser/commit/a1dd21c0271378382b6903a3d97d91b11c0b1c14))
+* Remove ROW from reserved word list ([cdd2cd7](https://github.com/applandinc/sqlite-parser/commit/cdd2cd734dc210795263ef32a6b81f29e5834ebf))
+
+
+### Features
+
+* Parse ILIKE expressions ([5669ed3](https://github.com/applandinc/sqlite-parser/commit/5669ed37695f99cef02d0ac213036d12f0ac59bb))
+* Parse IS [NOT] DISTINCT FROM comparison operator ([05d190d](https://github.com/applandinc/sqlite-parser/commit/05d190d7ebc228043271817a482c138f6ea50d30))
+* Parse SELECT ... FOR locking clause ([5f7feb1](https://github.com/applandinc/sqlite-parser/commit/5f7feb1d813abb58edc6e9ddf3eff9c0ddced85f))
+
 # [1.3.0](https://github.com/applandinc/sqlite-parser/compare/v1.2.0...v1.3.0) (2022-02-08)
 
 
