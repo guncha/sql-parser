@@ -1592,7 +1592,7 @@ table_or_sub
   }
 
 table_or_sub_func
-  = n:( id_function ) o l:( expression_list_wrapped ) o a:( alias )? {
+  = n:( id_function ) o l:( expression_list_wrapped ) o a:( func_alias_clause )? {
     return Object.assign({
       'type': 'function',
       'variant': 'table',
@@ -1600,6 +1600,32 @@ table_or_sub_func
       'args': l
     }, a);
   }
+
+func_alias_clause
+  = AS? o n:( name ) o sym_popen c:( table_func_element_list ) o sym_pclose
+    { return { alias: n, columns: c }; }
+  / AS o sym_popen o c:( table_func_element_list ) o sym_pclose
+    { return { columns: c }; }
+  / alias
+
+table_func_element_list
+  = f:( table_func_element ) o b:( table_func_element_tail )*
+  { return flattenAll([ f, b ]); }
+
+table_func_element
+  = n:( source_def_name ) o t:( type_definition ) o c:( column_collate )?
+  {
+    return Object.assign({
+      type: 'definition',
+      variant: 'column',
+      name: n,
+      datatype: t
+    }, c);
+  }
+
+table_func_element_tail
+  = sym_comma o t:( table_func_element ) o
+  { return t; }
 
 lateral
   = LATERAL {
