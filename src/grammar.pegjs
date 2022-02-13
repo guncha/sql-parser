@@ -1581,11 +1581,15 @@ select_join_clause "JOIN Operation"
   }
 
 table_or_sub
-  = table_or_sub_sub
-  / bind_parameter
-  / table_or_sub_func
-  / table_qualified
-  / table_or_sub_select
+  = l:( lateral )? o t:(
+    table_or_sub_sub
+    / bind_parameter
+    / table_or_sub_func
+    / table_qualified
+    / table_or_sub_select
+  ) {
+    return Object.assign(t, l);
+  }
 
 table_or_sub_func
   = n:( id_function ) o l:( expression_list_wrapped ) o a:( alias )? {
@@ -1595,6 +1599,11 @@ table_or_sub_func
       'name': n,
       'args': l
     }, a);
+  }
+
+lateral
+  = LATERAL {
+    return { lateral: true };
   }
 
 table_qualified "Qualified Table"
@@ -3483,6 +3492,8 @@ KEY
   = "KEY"i !name_char
 LAST
   = "LAST"i !name_char
+LATERAL
+  = "LATERAL"i !name_char
 LEFT
   = "LEFT"i !name_char
 LIKE
