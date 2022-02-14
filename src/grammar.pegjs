@@ -502,7 +502,38 @@ expression_recur
   / expression_cast
   / expression_case
   / expression_raise
+  / expression_array
   / expression_root
+
+expression_array "ARRAY expression"
+  = ARRAY o a:( array_expr )
+  {
+    return a;
+  }
+
+array_expr "array expression"
+  = sym_bopen o l:( array_expr_list / expression_list ) o sym_bclose
+  {
+    return {
+      type: 'expression',
+      variant: 'array',
+      expression: l
+    };
+  }
+
+array_expr_list "multi-dimensional array expression"
+  = e:( array_expr ) o l:( array_expr_tail )*
+  {
+    return {
+      type: 'expression',
+      variant: 'list',
+      expression: [e, ...l]
+    };
+  }
+
+array_expr_tail
+  = sym_comma o e:( array_expr )
+  { return e; }
 
 expression_unary_collate
   = e:( expression_recur ) o c:( expression_collate ) {

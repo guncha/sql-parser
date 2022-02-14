@@ -426,6 +426,130 @@
           }
         }
       ]
+    },
+    {
+      "type": "statement",
+      "variant": "select",
+      "result": [
+        {
+          "type": "expression",
+          "variant": "array",
+          "expression": {
+            "type": "expression",
+            "variant": "list",
+            "expression": []
+          }
+        }
+      ]
+    },
+    {
+      "type": "statement",
+      "variant": "select",
+      "result": [
+        {
+          "type": "expression",
+          "variant": "array",
+          "expression": {
+            "type": "expression",
+            "variant": "list",
+            "expression": [
+              {
+                "type": "expression",
+                "variant": "array",
+                "expression": {
+                  "type": "expression",
+                  "variant": "list",
+                  "expression": [
+                    {
+                      "type": "literal",
+                      "variant": "decimal",
+                      "value": "1"
+                    },
+                    {
+                      "type": "literal",
+                      "variant": "decimal",
+                      "value": "2"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "expression",
+                "variant": "array",
+                "expression": {
+                  "type": "expression",
+                  "variant": "list",
+                  "expression": [
+                    {
+                      "type": "literal",
+                      "variant": "decimal",
+                      "value": "3"
+                    },
+                    {
+                      "type": "literal",
+                      "variant": "decimal",
+                      "value": "4"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "statement",
+      "variant": "select",
+      "result": [
+        {
+          "type": "expression",
+          "variant": "array",
+          "expression": {
+            "type": "expression",
+            "variant": "list",
+            "expression": [
+              {
+                "type": "literal",
+                "variant": "decimal",
+                "value": "1"
+              },
+              {
+                "type": "expression",
+                "format": "binary",
+                "variant": "operation",
+                "operation": "+",
+                "left": {
+                  "type": "literal",
+                  "variant": "decimal",
+                  "value": "1"
+                },
+                "right": {
+                  "type": "literal",
+                  "variant": "decimal",
+                  "value": "1"
+                }
+              },
+              {
+                "type": "expression",
+                "format": "binary",
+                "variant": "operation",
+                "operation": "*",
+                "left": {
+                  "type": "literal",
+                  "variant": "decimal",
+                  "value": "2"
+                },
+                "right": {
+                  "type": "literal",
+                  "variant": "decimal",
+                  "value": "3"
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }
