@@ -13,4 +13,19 @@ ORDER BY
 LIMIT
   20
 OFFSET
-  10
+  10;
+
+SELECT
+  *
+FROM
+  `hats` h
+WHERE
+  h.color == 'red'
+GROUP BY
+  h.color, h.material
+HAVING
+  COUNT(h.quantity) >= 200
+ORDER BY
+  h.color DESC
+OFFSET
+  10;

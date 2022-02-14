@@ -1446,6 +1446,16 @@ stmt_core_limit "LIMIT Clause"
       }, d)
     };
   }
+  / OFFSET o e:( expression )
+  {
+    return {
+      'limit': {
+        'type': 'expression',
+        'variant': 'limit',
+        'offset': e
+      }
+    };
+  }
 
 stmt_core_limit_offset "OFFSET Clause"
   = o:( limit_offset_variant ) e:( expression )
