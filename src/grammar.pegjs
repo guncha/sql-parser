@@ -10,6 +10,10 @@
     return !Array.isArray(arr) ? [arr] : arr;
   }
 
+  function makeInteger(literal) {
+    return Number.parseInt(literal.value);
+  }
+
   function isOkay(obj) {
     return obj != null;
   }
@@ -120,8 +124,23 @@ stmt_list_tail
  * Type definitions
  */
 type_definition "Type Definition"
-  = t:( type_definition_types / datatype_custom ) o a:( type_definition_args )? {
-    return Object.assign(t, a);
+  = t:( type_definition_types / datatype_custom ) o a:( type_definition_args )? b:( array_bounds )? {
+    return Object.assign(t, a, b);
+  }
+
+array_bounds "Array bounds"
+  = b:( array_bound ) l:( array_bound )*
+  { return { bounds: [b, ...l] }; }
+  / o ARRAY b:( array_bound )?
+  { return { bounds: [b] }; }
+
+array_bound
+  = o sym_bopen o n:( literal_number )? o sym_bclose
+  {
+    if (isOkay(n))
+      return makeInteger(n);
+    else
+      return null;
   }
 
 type_definition_types
@@ -3386,6 +3405,8 @@ ANALYZE
   = "ANALYZE"i !name_char
 AND
   = "AND"i !name_char
+ARRAY
+  = "ARRAY"i !name_char
 AS
   = "AS"i !name_char
 ASC
@@ -3663,7 +3684,7 @@ reserved_words
  *   and column names.
  */
 reserved_word_list
-  = ABORT / ACTION / ADD / AFTER / ALL / ALTER / ANALYZE / AND / AS /
+  = ABORT / ACTION / ADD / AFTER / ALL / ALTER / ANALYZE / AND / ARRAY / AS /
     ASC / ATTACH / AUTOINCREMENT / BEFORE / BEGIN / BETWEEN / BY /
     CASCADE / CASE / CAST / CHECK / COLLATE / COLUMN / COMMIT /
     CONFLICT / CONSTRAINT / CREATE / CROSS / CURRENT_DATE /
