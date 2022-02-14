@@ -615,8 +615,8 @@ expression_shift
 expression_shift_op
   = binary_left
   / binary_right
-  / binary_and
   / binary_custom
+  / binary_and
   / $(binary_or !binary_or)
 
 expression_compare
