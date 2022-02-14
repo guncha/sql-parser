@@ -927,6 +927,7 @@ stmt_nodes
   / stmt_rollback
   / stmt_savepoint
   / stmt_release
+  / stmt_set
   / stmt_show
   / stmt_sqlite
 
@@ -1121,6 +1122,45 @@ stmt_select_full
   = w:( stmt_core_with ) s:( stmt_select ) {
     return Object.assign(s, w);
   }
+
+stmt_set "SET statement"
+  = SET o l:( set_local_session )? o v:( id_variable ) o r:( set_rest )
+  {
+    return Object.assign({
+      type: 'statement',
+      variant: 'set',
+      local: l || false,
+      target: v,
+    }, r);
+  }
+
+set_local_session
+  = "LOCAL"i { return true; }
+  / "SESSION"i { return false; }
+
+set_rest
+  = FROM o "CURRENT"i
+  { return { kind: 'current' }; }
+  / (TO / sym_equal) o DEFAULT
+  { return { kind: 'default' }; }
+  / (TO / sym_equal) o l:( var_list )
+  { return { kind: 'value', args: l }; }
+
+var_list
+  = v:( var_value ) l:( var_list_tail )*
+  {
+    return {
+      type: 'expression',
+      variant: 'list',
+      expression: [v, ...l]
+    };
+  }
+
+var_list_tail
+  = o sym_comma o v:( var_value )
+  { return v; }
+
+var_value = pragma_value
 
 stmt_show
   = SHOW o t:( show_target )
