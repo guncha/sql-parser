@@ -1171,7 +1171,7 @@ var_list_tail
   = o sym_comma o v:( var_value )
   { return v; }
 
-var_value = pragma_value
+var_value = pragma_value / bind_parameter
 
 stmt_show
   = SHOW o t:( show_target )
