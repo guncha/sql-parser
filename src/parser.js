@@ -644,11 +644,7 @@ function peg$parse(input, options) {
     peg$otherExpectation("Function Call Arguments"),
     function(s) {
         return {
-          'args': {
-            'type': 'identifier',
-            'variant': 'star',
-            'name': s
-          }
+          'args': s
         };
       },
     function(d, e) {
@@ -2633,7 +2629,7 @@ function peg$parse(input, options) {
     peg$decode("%;\u01DC/:#;z/1$;\u028B/($8#:\x7F#!!)(#'#(\"'#&'#"),
     peg$decode("<%;\u01AB/\x8B#;\u028B/\x82$;\u01DA/y$;\x80.\" &\"/k$;\u028B/b$;\u01DB/Y$;\u028B/P$;\x7F.\" &\"/B$;\u028B/9$;\x82.\" &\"/+$8*:\xAC*$)&\" )(*'#()'#(('#(''#(&'#(%'#($'#(#'#(\"'#&'#=.\" 7\xAB"),
     peg$decode("<%3\xAE\"\"5&7\xAF/p#;\u028B/g$;\u01DA/^$;\u028B/U$;\u027C/L$;\u028B/C$;z/:$;\u028B/1$;\u01DB/($8):\xB0)!\")()'#(('#(''#(&'#(%'#($'#(#'#(\"'#&'#=.\" 7\xAD"),
-    peg$decode("<%;\u0106/' 8!:\xB2!! ).V &%;\x81.\" &\"/G#;{/>$9:\xB3 \"! -\"\"&!&#/)$8#:\xB4#\"\"!)(#'#(\"'#&'#=.\" 7\xB1"),
+    peg$decode("<%;\xE2/' 8!:\xB2!! ).V &%;\x81.\" &\"/G#;{/>$9:\xB3 \"! -\"\"&!&#/)$8#:\xB4#\"\"!)(#'#(\"'#&'#=.\" 7\xB1"),
     peg$decode("%;\u0218.# &;\u01F6/1#;\u028B/($8\":\xB5\"!!)(\"'#&'#"),
     peg$decode("<%;\u0251/@#;\u028B/7$;\x84.# &;\x83/($8#:\xB7#! )(#'#(\"'#&'#=.\" 7\xB6"),
     peg$decode("<%;\u01A9/' 8!:\xB9!! )=.\" 7\xB8"),

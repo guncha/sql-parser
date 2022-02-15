@@ -847,13 +847,9 @@ filter_clause "FILTER clause"
   }
 
 function_call_args "Function Call Arguments"
-  = s:( select_star ) {
+  = s:( select_node_star ) {
     return {
-      'args': {
-        'type': 'identifier',
-        'variant': 'star',
-        'name': s
-      }
+      'args': s
     };
   }
   / d:( args_list_distinct )? e:( expression_list ) & {
