@@ -1777,11 +1777,11 @@ table_or_sub_select "Subquery"
   }
 
 alias "Alias"
-  = a:( AS ( !( name_char / reserved_critical_list ) o ) )? n:( name ) o
+  = a:( AS ( !( name_char / reserved_critical_list ) o ) )? n:( name ) o c:( loop_columns )? o
   {
-    return {
+    return Object.assign({
       'alias': n
-    };
+    }, c);
   }
 
 join_operator "JOIN Operator"

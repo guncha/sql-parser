@@ -1187,10 +1187,10 @@ function peg$parse(input, options) {
         return Object.assign(s, a);
       },
     peg$otherExpectation("Alias"),
-    function(a, n) {
-        return {
+    function(a, n, c) {
+        return Object.assign({
           'alias': n
-        };
+        }, c);
       },
     peg$otherExpectation("JOIN Operator"),
     function(n, t, j) { return foldStringKey([ n, t, j ]); },
@@ -2733,7 +2733,7 @@ function peg$parse(input, options) {
     peg$decode("%;t/;#;\u022E/2$;\u0288/)$8#:\u0150#\"\"!)(#'#(\"'#&'#"),
     peg$decode("<%;\u01D7/R#;\xE2/I$;\u0288/@$;\u01D8/7$;\xF4.\" &\"/)$8%:\u0152%\"# )(%'#($'#(#'#(\"'#&'#=.\" 7\u0151"),
     peg$decode("<%;\xA2/7#;\xF4.\" &\"/)$8\":\u0154\"\"! )(\"'#&'#=.\" 7\u0153"),
-    peg$decode("<%%;\u01F8/Q#%%<;\u01CA.# &;\u027F=.##&&!&'#/,#;\u0288/#$+\")(\"'#&'#/#$+\")(\"'#&'#.\" &\"/;#;\u01CC/2$;\u0288/)$8#:\u0156#\"\"!)(#'#(\"'#&'#=.\" 7\u0155"),
+    peg$decode("<%%;\u01F8/Q#%%<;\u01CA.# &;\u027F=.##&&!&'#/,#;\u0288/#$+\")(\"'#&'#/#$+\")(\"'#&'#.\" &\"/S#;\u01CC/J$;\u0288/A$;\u0112.\" &\"/3$;\u0288/*$8%:\u0156%#$#!)(%'#($'#(#'#(\"'#&'#=.\" 7\u0155"),
     peg$decode("<%;\xF6.\" &\"/J#;\u0288/A$;\xF7.\" &\"/3$;\u0237/*$8$:\u0158$##! )($'#(#'#(\"'#&'#=.\" 7\u0157"),
     peg$decode("%;\u0240/1#;\u0288/($8\":\xA3\"!!)(\"'#&'#"),
     peg$decode(";\xF8.# &;\xFA"),
