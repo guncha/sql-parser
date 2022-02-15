@@ -830,12 +830,20 @@ expression_list_rest
  *  Allow functions to have datatype names: date(arg), time(now), etc...
  */
 function_call "Function Call"
-  = n:( id_function ) o sym_popen a:( function_call_args )? o sym_pclose o o:( over_clause )?
+  = n:( id_function ) o sym_popen a:( function_call_args )? o sym_pclose o f:( filter_clause )? o o:( over_clause )?
   {
     return Object.assign({
       'type': 'function',
       'name': n
-    }, a, o);
+    }, a, o, f);
+  }
+
+filter_clause "FILTER clause"
+  = "FILTER"i o sym_popen o WHERE o e:( expression ) o sym_pclose
+  {
+    return {
+      filter: e
+    };
   }
 
 function_call_args "Function Call Arguments"
