@@ -503,12 +503,23 @@ expression_recur
   / expression_case
   / expression_raise
   / expression_array
+  / expression_array_select
   / expression_root
 
 expression_array "ARRAY expression"
   = ARRAY o a:( array_expr )
   {
     return a;
+  }
+
+expression_array_select "ARRAY SELECT expression"
+  = ARRAY o s:( select_wrapped )
+  {
+    return {
+      type: 'expression',
+      variant: 'array',
+      expression: s
+    };
   }
 
 array_expr "array expression"
