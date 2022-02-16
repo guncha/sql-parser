@@ -2,7 +2,7 @@
   "name": "@appland/sql-parser",
   "description": "JavaScript implementation of SQLite 3 query parser",
   "author": "Code School (http://codeschool.com)",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "contributors": [
     "Nick Wronski <nick@javascript.com>",
     "Rafał Rzepecki <divided.mind@gmail.com>"

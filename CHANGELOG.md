@@ -1,3 +1,21 @@
+# [1.5.0](https://github.com/applandinc/sqlite-parser/compare/v1.4.0...v1.5.0) (2022-02-16)
+
+
+### Features
+
+* Allow bind parameters in SET statements ([a7285c8](https://github.com/applandinc/sqlite-parser/commit/a7285c8173c8632a377d7c5b55a2e003aa7a23fc))
+* Allow column aliases in SELECT ... AS ([cb8dcd6](https://github.com/applandinc/sqlite-parser/commit/cb8dcd6ce53b2095e783b7d524a5688119af49fb))
+* Allow table.* star expressions in function calls ([d6f50a5](https://github.com/applandinc/sqlite-parser/commit/d6f50a506edf8f6a60b77e1959fc6e10c324ba72))
+* Parse array bounds in data types ([22a417d](https://github.com/applandinc/sqlite-parser/commit/22a417de0531208be5049cb173ba884ba5f9226c))
+* Parse array intersection operator ([c88095b](https://github.com/applandinc/sqlite-parser/commit/c88095b9f51b44b118fd1201533a5d818ae75a39))
+* Parse ARRAY(SELECT ...) expressions ([a2689c1](https://github.com/applandinc/sqlite-parser/commit/a2689c1fcf13862af440244332ae312a4d67eb19))
+* Parse ARRAY[element, element] expressions ([4eccb85](https://github.com/applandinc/sqlite-parser/commit/4eccb85b7e974b2ae93542daa01f06f5191751eb))
+* Parse function table column definitions ([c0da196](https://github.com/applandinc/sqlite-parser/commit/c0da196bbcaf8df39cec6333b9db8e36c0515e49))
+* Parse LATERAL subqueries ([74f7501](https://github.com/applandinc/sqlite-parser/commit/74f7501a0cf7580063e1e7638bafadca2ff7ca4f))
+* Parse SQL SET statements ([05e6e13](https://github.com/applandinc/sqlite-parser/commit/05e6e1302032eac48dc85689fd100a80c2cac4bb))
+* Support FILTER (WHERE ...) clause for aggregate functions ([14819b5](https://github.com/applandinc/sqlite-parser/commit/14819b5d8535ec2addde88720b771727f87321ff))
+* Support OFFSET clause without LIMIT ([f6916d9](https://github.com/applandinc/sqlite-parser/commit/f6916d9551ace54a96503b639e3a6bce390b8772))
+
 # [1.4.0](https://github.com/applandinc/sqlite-parser/compare/v1.3.0...v1.4.0) (2022-02-12)
 
 
