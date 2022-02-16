@@ -8,3 +8,9 @@ UPDATE sal_emp SET pay_by_quarter[4] = 15000
     WHERE name = 'Bill';
 UPDATE sal_emp SET pay_by_quarter[1:2] = '{27000,27000}'
     WHERE name = 'Carol';
+
+SELECT ARRAY[];
+SELECT ARRAY[[1,2], [3,4]];
+SELECT ARRAY[1, 1+1, 2*3];
+
+SELECT ARRAY(SELECT ARRAY[i, i*2] FROM generate_series(1,5) AS a(i));

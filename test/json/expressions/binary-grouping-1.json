@@ -212,6 +212,43 @@
         "name": "json_data",
         "alias": "j"
       }
+    },
+    {
+      "type": "statement",
+      "variant": "select",
+      "result": [
+        {
+          "type": "expression",
+          "format": "binary",
+          "variant": "operation",
+          "operation": "&&",
+          "left": {
+            "type": "identifier",
+            "variant": "column",
+            "name": "labels"
+          },
+          "right": {
+            "type": "expression",
+            "variant": "array",
+            "expression": {
+              "type": "expression",
+              "variant": "list",
+              "expression": [
+                {
+                  "type": "variable",
+                  "format": "numbered",
+                  "name": "?"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "from": {
+        "type": "identifier",
+        "variant": "table",
+        "name": "products"
+      }
     }
   ]
 }

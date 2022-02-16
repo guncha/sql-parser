@@ -10,6 +10,10 @@
     return !Array.isArray(arr) ? [arr] : arr;
   }
 
+  function makeInteger(literal) {
+    return Number.parseInt(literal.value);
+  }
+
   function isOkay(obj) {
     return obj != null;
   }
@@ -120,8 +124,23 @@ stmt_list_tail
  * Type definitions
  */
 type_definition "Type Definition"
-  = t:( type_definition_types / datatype_custom ) o a:( type_definition_args )? {
-    return Object.assign(t, a);
+  = t:( type_definition_types / datatype_custom ) o a:( type_definition_args )? b:( array_bounds )? {
+    return Object.assign(t, a, b);
+  }
+
+array_bounds "Array bounds"
+  = b:( array_bound ) l:( array_bound )*
+  { return { bounds: [b, ...l] }; }
+  / o ARRAY b:( array_bound )?
+  { return { bounds: [b] }; }
+
+array_bound
+  = o sym_bopen o n:( literal_number )? o sym_bclose
+  {
+    if (isOkay(n))
+      return makeInteger(n);
+    else
+      return null;
   }
 
 type_definition_types
@@ -483,7 +502,49 @@ expression_recur
   / expression_cast
   / expression_case
   / expression_raise
+  / expression_array
+  / expression_array_select
   / expression_root
+
+expression_array "ARRAY expression"
+  = ARRAY o a:( array_expr )
+  {
+    return a;
+  }
+
+expression_array_select "ARRAY SELECT expression"
+  = ARRAY o s:( select_wrapped )
+  {
+    return {
+      type: 'expression',
+      variant: 'array',
+      expression: s
+    };
+  }
+
+array_expr "array expression"
+  = sym_bopen o l:( array_expr_list / expression_list ) o sym_bclose
+  {
+    return {
+      type: 'expression',
+      variant: 'array',
+      expression: l
+    };
+  }
+
+array_expr_list "multi-dimensional array expression"
+  = e:( array_expr ) o l:( array_expr_tail )*
+  {
+    return {
+      type: 'expression',
+      variant: 'list',
+      expression: [e, ...l]
+    };
+  }
+
+array_expr_tail
+  = sym_comma o e:( array_expr )
+  { return e; }
 
 expression_unary_collate
   = e:( expression_recur ) o c:( expression_collate ) {
@@ -565,8 +626,8 @@ expression_shift
 expression_shift_op
   = binary_left
   / binary_right
-  / binary_and
   / binary_custom
+  / binary_and
   / $(binary_or !binary_or)
 
 expression_compare
@@ -769,22 +830,26 @@ expression_list_rest
  *  Allow functions to have datatype names: date(arg), time(now), etc...
  */
 function_call "Function Call"
-  = n:( id_function ) o sym_popen a:( function_call_args )? o sym_pclose o o:( over_clause )?
+  = n:( id_function ) o sym_popen a:( function_call_args )? o sym_pclose o f:( filter_clause )? o o:( over_clause )?
   {
     return Object.assign({
       'type': 'function',
       'name': n
-    }, a, o);
+    }, a, o, f);
+  }
+
+filter_clause "FILTER clause"
+  = "FILTER"i o sym_popen o WHERE o e:( expression ) o sym_pclose
+  {
+    return {
+      filter: e
+    };
   }
 
 function_call_args "Function Call Arguments"
-  = s:( select_star ) {
+  = s:( select_node_star ) {
     return {
-      'args': {
-        'type': 'identifier',
-        'variant': 'star',
-        'name': s
-      }
+      'args': s
     };
   }
   / d:( args_list_distinct )? e:( expression_list ) & {
@@ -877,6 +942,7 @@ stmt_nodes
   / stmt_rollback
   / stmt_savepoint
   / stmt_release
+  / stmt_set
   / stmt_show
   / stmt_sqlite
 
@@ -1071,6 +1137,45 @@ stmt_select_full
   = w:( stmt_core_with ) s:( stmt_select ) {
     return Object.assign(s, w);
   }
+
+stmt_set "SET statement"
+  = SET o l:( set_local_session )? o v:( id_variable ) o r:( set_rest )
+  {
+    return Object.assign({
+      type: 'statement',
+      variant: 'set',
+      local: l || false,
+      target: v,
+    }, r);
+  }
+
+set_local_session
+  = "LOCAL"i { return true; }
+  / "SESSION"i { return false; }
+
+set_rest
+  = FROM o "CURRENT"i
+  { return { kind: 'current' }; }
+  / (TO / sym_equal) o DEFAULT
+  { return { kind: 'default' }; }
+  / (TO / sym_equal) o l:( var_list )
+  { return { kind: 'value', args: l }; }
+
+var_list
+  = v:( var_value ) l:( var_list_tail )*
+  {
+    return {
+      type: 'expression',
+      variant: 'list',
+      expression: [v, ...l]
+    };
+  }
+
+var_list_tail
+  = o sym_comma o v:( var_value )
+  { return v; }
+
+var_value = pragma_value / bind_parameter
 
 stmt_show
   = SHOW o t:( show_target )
@@ -1396,6 +1501,16 @@ stmt_core_limit "LIMIT Clause"
       }, d)
     };
   }
+  / OFFSET o e:( expression )
+  {
+    return {
+      'limit': {
+        'type': 'expression',
+        'variant': 'limit',
+        'offset': e
+      }
+    };
+  }
 
 stmt_core_limit_offset "OFFSET Clause"
   = o:( limit_offset_variant ) e:( expression )
@@ -1581,20 +1696,55 @@ select_join_clause "JOIN Operation"
   }
 
 table_or_sub
-  = table_or_sub_sub
-  / bind_parameter
-  / table_or_sub_func
-  / table_qualified
-  / table_or_sub_select
+  = l:( lateral )? o t:(
+    table_or_sub_sub
+    / bind_parameter
+    / table_or_sub_func
+    / table_qualified
+    / table_or_sub_select
+  ) {
+    return Object.assign(t, l);
+  }
 
 table_or_sub_func
-  = n:( id_function ) o l:( expression_list_wrapped ) o a:( alias )? {
+  = n:( id_function ) o l:( expression_list_wrapped ) o a:( func_alias_clause )? {
     return Object.assign({
       'type': 'function',
       'variant': 'table',
       'name': n,
       'args': l
     }, a);
+  }
+
+func_alias_clause
+  = AS? o n:( name ) o sym_popen c:( table_func_element_list ) o sym_pclose
+    { return { alias: n, columns: c }; }
+  / AS o sym_popen o c:( table_func_element_list ) o sym_pclose
+    { return { columns: c }; }
+  / alias
+
+table_func_element_list
+  = f:( table_func_element ) o b:( table_func_element_tail )*
+  { return flattenAll([ f, b ]); }
+
+table_func_element
+  = n:( source_def_name ) o t:( type_definition ) o c:( column_collate )?
+  {
+    return Object.assign({
+      type: 'definition',
+      variant: 'column',
+      name: n,
+      datatype: t
+    }, c);
+  }
+
+table_func_element_tail
+  = sym_comma o t:( table_func_element ) o
+  { return t; }
+
+lateral
+  = LATERAL {
+    return { lateral: true };
   }
 
 table_qualified "Qualified Table"
@@ -1642,11 +1792,11 @@ table_or_sub_select "Subquery"
   }
 
 alias "Alias"
-  = a:( AS ( !( name_char / reserved_critical_list ) o ) )? n:( name ) o
+  = a:( AS ( !( name_char / reserved_critical_list ) o ) )? n:( name ) o c:( loop_columns )? o
   {
-    return {
+    return Object.assign({
       'alias': n
-    };
+    }, c);
   }
 
 join_operator "JOIN Operator"
@@ -3351,6 +3501,8 @@ ANALYZE
   = "ANALYZE"i !name_char
 AND
   = "AND"i !name_char
+ARRAY
+  = "ARRAY"i !name_char
 AS
   = "AS"i !name_char
 ASC
@@ -3483,6 +3635,8 @@ KEY
   = "KEY"i !name_char
 LAST
   = "LAST"i !name_char
+LATERAL
+  = "LATERAL"i !name_char
 LEFT
   = "LEFT"i !name_char
 LIKE
@@ -3626,7 +3780,7 @@ reserved_words
  *   and column names.
  */
 reserved_word_list
-  = ABORT / ACTION / ADD / AFTER / ALL / ALTER / ANALYZE / AND / AS /
+  = ABORT / ACTION / ADD / AFTER / ALL / ALTER / ANALYZE / AND / ARRAY / AS /
     ASC / ATTACH / AUTOINCREMENT / BEFORE / BEGIN / BETWEEN / BY /
     CASCADE / CASE / CAST / CHECK / COLLATE / COLUMN / COMMIT /
     CONFLICT / CONSTRAINT / CREATE / CROSS / CURRENT_DATE /
