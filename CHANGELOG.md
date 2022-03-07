@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/applandinc/sqlite-parser/compare/v1.5.0...v1.5.1) (2022-03-07)
+
+
+### Bug Fixes
+
+* Don't skip over spaces when parsing custom operators ([b78a8a5](https://github.com/applandinc/sqlite-parser/commit/b78a8a514645c03b721902bf6c35d917cbaa25de))
+
 # [1.5.0](https://github.com/applandinc/sqlite-parser/compare/v1.4.0...v1.5.0) (2022-02-16)
 
 
