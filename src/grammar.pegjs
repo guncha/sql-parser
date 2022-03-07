@@ -3481,7 +3481,7 @@ sym_fslash "Forward Slash"
 sym_bslash "Backslash"
   = s:( "\\" ) o { return s; }
 sym_op "Operator characters"
-  = s:( [-+*/<>=~!@#%^&|`] ) o { return s; }
+  = [-+*/<>=~!@#%^&|`]
 
 /* Keywords */
 
