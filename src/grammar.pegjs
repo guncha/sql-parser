@@ -379,7 +379,8 @@ bind_parameter "Bind Parameter"
   = b:( bind_parameter_numbered / bind_parameter_named / bind_parameter_tcl )
   {
     return Object.assign({
-      'type': 'variable'
+      'type': 'variable',
+      'location': location(),
     }, b);
   }
 
